@@ -6,11 +6,11 @@
 # --------------------------------------------------------
 import tqdm
 import torch
-from mini_dust3r.utils.device import to_cpu, collate_with_cat
-from mini_dust3r.utils.misc import invalid_to_nans
-from mini_dust3r.utils.geometry import depthmap_to_pts3d, geotrf
-from mini_dust3r.utils.image import ImageDict
-from mini_dust3r.model import AsymmetricCroCo3DStereo
+from mini_mast3r.utils.device import to_cpu, collate_with_cat
+from mini_mast3r.utils.misc import invalid_to_nans
+from mini_mast3r.utils.geometry import depthmap_to_pts3d, geotrf
+from mini_mast3r.utils.image import ImageDict
+from mini_mast3r.model import AsymmetricCroCo3DStereo
 
 from typing import Literal, TypedDict, Optional
 from jaxtyping import Float32

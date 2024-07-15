@@ -13,11 +13,11 @@ import cv2
 import roma
 from tqdm import tqdm
 
-from mini_dust3r.utils.geometry import geotrf, inv, get_med_dist_between_poses
-from mini_dust3r.post_process import estimate_focal_knowing_depth
-from mini_dust3r.viz import to_numpy
+from mini_mast3r.utils.geometry import geotrf, inv, get_med_dist_between_poses
+from mini_mast3r.post_process import estimate_focal_knowing_depth
+from mini_mast3r.viz import to_numpy
 
-from mini_dust3r.cloud_opt.commons import edge_str, i_j_ij, compute_edge_scores
+from mini_mast3r.cloud_opt.commons import edge_str, i_j_ij, compute_edge_scores
 
 
 @torch.no_grad()
@@ -116,8 +116,8 @@ def init_from_pts3d(self, pts3d, im_focals, im_poses):
             if im_focals[i] is not None:
                 self._set_focal(i, im_focals[i])
 
-    if self.verbose:
-        print(' init loss =', float(self()))
+    # if self.verbose:
+    #     print(' init loss =', float(self()))
 
 
 def minimum_spanning_tree(imshapes, edges, pred_i, pred_j, conf_i, conf_j, im_conf, min_conf_thr,

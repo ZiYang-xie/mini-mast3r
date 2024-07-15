@@ -12,8 +12,8 @@ from einops import rearrange
 from typing import List
 import torch
 import torch.nn as nn
-from mini_dust3r.heads.postprocess import postprocess
-from mini_dust3r.croco.dpt_block import DPTOutputAdapter
+from mini_mast3r.heads.postprocess import postprocess
+from mini_mast3r.croco.dpt_block import DPTOutputAdapter
 
 
 class DPTOutputAdapter_fix(DPTOutputAdapter):

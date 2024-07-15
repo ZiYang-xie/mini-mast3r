@@ -6,12 +6,12 @@
 # --------------------------------------------------------
 import numpy as np
 import torch
-from mini_dust3r.utils.image import ImageDict
+from mini_mast3r.utils.image import ImageDict
 
 
 def make_pairs(
     imgs: list[ImageDict],
-    scene_graph: str = "complete",
+    scene_graph: str = "swin",
     prefilter=None,
     symmetrize=True,
 ) -> list[tuple[ImageDict, ImageDict]]:

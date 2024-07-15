@@ -9,7 +9,7 @@ from enum import Enum
 from .optimizer import PointCloudOptimizer
 from .modular_optimizer import ModularPointCloudOptimizer
 from .pair_viewer import PairViewer
-from mini_dust3r.inference import Dust3rResult
+from mini_mast3r.inference import Dust3rResult
 from typing import Literal
 
 
@@ -31,7 +31,7 @@ def global_aligner(
     ]
     # build the optimizer
     if mode == GlobalAlignerMode.PointCloudOptimizer:
-        net = PointCloudOptimizer(view1, view2, pred1, pred2, **optim_kw).to(device)
+        net = PointCloudOptimizer(view1, view2, pred1, pred2, device=device, **optim_kw)
     elif mode == GlobalAlignerMode.ModularPointCloudOptimizer:
         net = ModularPointCloudOptimizer(view1, view2, pred1, pred2, **optim_kw).to(
             device

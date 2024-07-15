@@ -9,10 +9,10 @@ import torch
 import torch.nn as nn
 import cv2
 
-from mini_dust3r.cloud_opt.base_opt import BasePCOptimizer
-from mini_dust3r.utils.geometry import inv, geotrf, depthmap_to_absolute_camera_coordinates
-from mini_dust3r.cloud_opt.commons import edge_str
-from mini_dust3r.post_process import estimate_focal_knowing_depth
+from mini_mast3r.cloud_opt.base_opt import BasePCOptimizer
+from mini_mast3r.utils.geometry import inv, geotrf, depthmap_to_absolute_camera_coordinates
+from mini_mast3r.cloud_opt.commons import edge_str
+from mini_mast3r.post_process import estimate_focal_knowing_depth
 
 
 class PairViewer (BasePCOptimizer):

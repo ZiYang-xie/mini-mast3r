@@ -13,18 +13,18 @@ import roma
 from copy import deepcopy
 import tqdm
 
-from mini_dust3r.utils.geometry import inv, geotrf
-from mini_dust3r.utils.device import to_numpy
-from mini_dust3r.utils.image import rgb
-from mini_dust3r.viz import SceneViz, segment_sky, auto_cam_size
-from mini_dust3r.optim_factory import adjust_learning_rate_by_lr
+from mini_mast3r.utils.geometry import inv, geotrf
+from mini_mast3r.utils.device import to_numpy
+from mini_mast3r.utils.image import rgb
+from mini_mast3r.viz import SceneViz, segment_sky, auto_cam_size
+from mini_mast3r.optim_factory import adjust_learning_rate_by_lr
 
-from mini_dust3r.cloud_opt.commons import (edge_str, ALL_DISTS, NoGradParamDict, get_imshapes, signed_expm1, signed_log1p,
+from mini_mast3r.cloud_opt.commons import (edge_str, ALL_DISTS, NoGradParamDict, get_imshapes, signed_expm1, signed_log1p,
                                       cosine_schedule, linear_schedule, get_conf_trf)
-import mini_dust3r.cloud_opt.init_im_poses as init_fun
+import mini_mast3r.cloud_opt.init_im_poses as init_fun
 
 
-class BasePCOptimizer (nn.Module):
+class BasePCOptimizer(nn.Module):
     """ Optimize a global scene, given a list of pairwise observations.
     Graph node: images
     Graph edges: observations = (pred1, pred2)

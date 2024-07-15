@@ -4,8 +4,8 @@ from pathlib import Path
 from argparse import ArgumentParser
 import torch
 
-from mini_dust3r.api import OptimizedResult, inferece_dust3r, log_optimized_result
-from mini_dust3r.model import AsymmetricCroCo3DStereo
+from mini_mast3r.api import OptimizedResult, inferece_mast3r, log_optimized_result
+from mini_mast3r.model import AsymmetricMASt3R
 
 
 def create_blueprint(image_name_list: list[str], log_path: Path) -> rrb.Blueprint:
@@ -49,11 +49,11 @@ def main(image_dir: Path):
     else:
         device = "cpu"
 
-    model = AsymmetricCroCo3DStereo.from_pretrained(
-        "naver/DUSt3R_ViTLarge_BaseDecoder_512_dpt"
+    model = AsymmetricMASt3R.from_pretrained(
+        "naver/MASt3R_ViTLarge_BaseDecoder_512_catmlpdpt_metric"
     ).to(device)
 
-    optimized_results: OptimizedResult = inferece_dust3r(
+    optimized_results: OptimizedResult = inferece_mast3r(
         image_dir_or_list=image_dir,
         model=model,
         device=device,

@@ -8,13 +8,15 @@ from jaxtyping import Float32, Bool
 import trimesh
 from tqdm import tqdm
 
-from mini_dust3r.utils.image import load_images, ImageDict
-from mini_dust3r.inference import inference, Dust3rResult
-from mini_dust3r.model import AsymmetricCroCo3DStereo
-from mini_dust3r.image_pairs import make_pairs
-from mini_dust3r.cloud_opt import global_aligner, GlobalAlignerMode
-from mini_dust3r.cloud_opt.base_opt import BasePCOptimizer
-from mini_dust3r.viz import pts3d_to_trimesh, cat_meshes
+from mini_mast3r.utils.image import load_images, ImageDict
+from mini_mast3r.inference import inference, Dust3rResult
+from mini_mast3r.model import AsymmetricMASt3R
+from mini_mast3r.image_pairs import make_pairs
+
+from mini_mast3r.cloud_opt import global_aligner, GlobalAlignerMode
+from mini_mast3r.cloud_opt.base_opt import BasePCOptimizer
+
+from mini_mast3r.viz import pts3d_to_trimesh, cat_meshes
 from dataclasses import dataclass
 
 
@@ -136,9 +138,11 @@ def scene_to_results(scene: BasePCOptimizer, min_conf_thr: int) -> OptimizedResu
     )
 
     meshes = []
-    pbar = tqdm(zip(rgb_hw3_list, pts3d_list, masks_list), total=len(rgb_hw3_list))
-    for rgb_hw3, pts3d, mask in pbar:
-        meshes.append(pts3d_to_trimesh(rgb_hw3, pts3d, mask))
+    pbar = tqdm(enumerate(zip(rgb_hw3_list, pts3d_list, masks_list)), total=len(rgb_hw3_list))
+    SKIP = 10
+    for idx, (rgb_hw3, pts3d, mask) in pbar:
+        if idx % SKIP == 0:
+            meshes.append(pts3d_to_trimesh(rgb_hw3, pts3d, mask))
 
     mesh = trimesh.Trimesh(**cat_meshes(meshes))
     optimised_result = OptimizedResult(
@@ -154,22 +158,23 @@ def scene_to_results(scene: BasePCOptimizer, min_conf_thr: int) -> OptimizedResu
     return optimised_result
 
 
-def inferece_dust3r(
+def inferece_mast3r(
     image_dir_or_list: Path | list[Path],
-    model: AsymmetricCroCo3DStereo,
+    model: AsymmetricMASt3R,
     device: Literal["cpu", "cuda", "mps"],
     batch_size: int = 1,
     image_size: Literal[224, 512] = 512,
-    niter: int = 100,
-    schedule: Literal["linear", "cosine"] = "linear",
+    niter: int = 256,
+    schedule: Literal["linear", "cosine"] = "cosine",
     min_conf_thr: float = 10,
+    mode: str = 'swin-7'
 ) -> OptimizedResult:
     """
-    Perform inference using the Dust3r algorithm.
+    Perform inference using the mast3r algorithm.
 
     Args:
         image_dir_or_list (Union[Path, List[Path]]): Path to the directory containing images or a list of image paths.
-        model (AsymmetricCroCo3DStereo): The Dust3r model to use for inference.
+        model (AsymmetricMASt3R): The mast3r model to use for inference.
         device (Literal["cpu", "cuda", "mps"]): The device to use for inference ("cpu", "cuda", or "mps").
         batch_size (int, optional): The batch size for inference. Defaults to 1.
         image_size (Literal[224, 512], optional): The size of the input images. Defaults to 512.
@@ -200,7 +205,7 @@ def inferece_dust3r(
         imgs[1]["idx"] = 1
 
     pairs: list[tuple[ImageDict, ImageDict]] = make_pairs(
-        imgs, scene_graph="complete", prefilter=None, symmetrize=True
+        imgs, scene_graph=mode, prefilter=None, symmetrize=True
     )
     output: Dust3rResult = inference(pairs, model, device, batch_size=batch_size)
 

@@ -1,15 +1,15 @@
-# Mini-Dust3r
-A miniature version of [dust3r](https://github.com/naver/dust3r) only for performing inference.
-This makes it much easier to use without needing the training/data/eval code. Tested on Linux, Apple Silicon Macs, and Windows (Thanks @Vincentqyw)
+# Mini-Mast3r
+A miniature version of [mast3r](https://github.com/naver/mast3r) only for performing inference.
+This makes it much easier to use without needing the training/data/eval code. Tested on Linux, Apple Silicon Macs, and Windows 
+(Adapted from Repo [mini-dust3r](https://github.com/pablovela5620/mini-dust3r))
 <p align="center">
   <img src="media/mini-dust3r.gif" alt="example output" width="720" />
 </p>
 
 
 ## Installation
-Easily installable via pip
 ```bash
-pip install mini-dust3r
+pip install -e .
 ```
 
 ## Demo
@@ -17,15 +17,7 @@ A hosted demo can be found on huggingface here <a href='https://huggingface.co/s
 
 or from source using [Pixi](http://pixi.sh)
 
-``` bash
-git clone https://github.com/pablovela5620/mini-dust3r.git
-pixi run gradio-demo
-```
 
-You can also just use rerun demo directly with
-```bash
-pixi run rerun-demo
-```
 
 ## Minimal Example
 Uses [Rerun](http://rerun.io/) to visualize the outputs

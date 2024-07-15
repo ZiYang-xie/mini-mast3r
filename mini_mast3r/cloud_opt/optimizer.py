@@ -8,9 +8,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from mini_dust3r.cloud_opt.base_opt import BasePCOptimizer
-from mini_dust3r.utils.geometry import xy_grid, geotrf
-from mini_dust3r.utils.device import to_cpu, to_numpy
+from mini_mast3r.cloud_opt.base_opt import BasePCOptimizer
+from mini_mast3r.utils.geometry import xy_grid, geotrf
+from mini_mast3r.utils.device import to_cpu, to_numpy
 
 
 class PointCloudOptimizer(BasePCOptimizer):
@@ -19,7 +19,7 @@ class PointCloudOptimizer(BasePCOptimizer):
     Graph edges: observations = (pred1, pred2)
     """
 
-    def __init__(self, *args, optimize_pp=False, focal_break=20, **kwargs):
+    def __init__(self, *args, device='cuda', optimize_pp=False, focal_break=20, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.has_im_poses = True  # by definition of this class
@@ -190,15 +190,44 @@ class PointCloudOptimizer(BasePCOptimizer):
         pw_adapt = self.get_adaptors().unsqueeze(1)
         proj_pts3d = self.get_pts3d(raw=True)
 
-        # rotate pairwise prediction according to pw_poses
-        aligned_pred_i = geotrf(pw_poses, pw_adapt * self._stacked_pred_i)
-        aligned_pred_j = geotrf(pw_poses, pw_adapt * self._stacked_pred_j)
+        N = len(proj_pts3d)
+        batch_sz = 128
 
-        # compute the less
-        li = self.dist(proj_pts3d[self._ei], aligned_pred_i, weight=self._weight_i).sum() / self.total_area_i
-        lj = self.dist(proj_pts3d[self._ej], aligned_pred_j, weight=self._weight_j).sum() / self.total_area_j
+        total_li = 0
+        total_lj = 0
 
-        return li + lj
+        for i in range(0, N, batch_sz):
+            end = min(i + batch_sz, N)
+            actual_batch_sz = end - i
+
+            # Move batch data to GPU
+            poses = pw_poses[i:end].to(self.device)
+            adapt = pw_adapt[i:end].to(self.device)
+            stack_pred_i = self._stacked_pred_i[i:end].to(self.device)
+            stack_pred_j = self._stacked_pred_j[i:end].to(self.device)
+            ei = self._ei[i:end].to(self.device)
+            ej = self._ej[i:end].to(self.device)
+            weight_i = self._weight_i[i:end].to(self.device)
+            weight_j = self._weight_j[i:end].to(self.device)
+
+            # Perform computations on GPU
+            adapted_pred_i = adapt * stack_pred_i
+            adapted_pred_j = adapt * stack_pred_j
+            aligned_pred_i = geotrf(poses, adapted_pred_i)
+            aligned_pred_j = geotrf(poses, adapted_pred_j)
+
+            # Move necessary proj_pts3d to GPU for loss computation
+            gpu_proj_pts3d_i = proj_pts3d[ei].to(self.device)
+            gpu_proj_pts3d_j = proj_pts3d[ej].to(self.device)
+
+            # Compute losses
+            li = self.dist(gpu_proj_pts3d_i, aligned_pred_i, weight=weight_i).sum() / (self.total_area_i * actual_batch_sz/N)
+            lj = self.dist(gpu_proj_pts3d_j, aligned_pred_j, weight=weight_j).sum() / (self.total_area_j * actual_batch_sz/N)
+
+            total_li += li
+            total_lj += lj
+
+        return total_li + total_lj
 
 
 def _fast_depthmap_to_pts3d(depth, pixel_grid, focal, pp):
