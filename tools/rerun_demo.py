@@ -3,6 +3,7 @@ import rerun.blueprint as rrb
 from pathlib import Path
 from argparse import ArgumentParser
 import torch
+import os
 
 from mini_mast3r.api import OptimizedResult, inferece_mast3r, log_optimized_result
 from mini_mast3r.model import AsymmetricMASt3R
@@ -58,7 +59,11 @@ def main(image_dir: Path):
         model=model,
         device=device,
         batch_size=1,
+        match_mode="swin-7",
+        max_num=20
     )
+
+    image_dir = [os.path.join(image_dir, f) for f in os.listdir(image_dir)]
     blueprint = create_blueprint(image_dir, "world")
     rr.send_blueprint(blueprint)
     log_optimized_result(optimized_results, Path("world"))

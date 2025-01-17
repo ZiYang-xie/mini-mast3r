@@ -52,7 +52,7 @@ def log_optimized_result(
         rr.Mesh3D(
             vertex_positions=mesh.vertices,
             vertex_colors=mesh.visual.vertex_colors,
-            indices=mesh.faces,
+            triangle_indices=mesh.faces,
         ),
         timeless=True,
     )
@@ -167,7 +167,8 @@ def inferece_mast3r(
     niter: int = 256,
     schedule: Literal["linear", "cosine"] = "cosine",
     min_conf_thr: float = 10,
-    mode: str = 'swin-7'
+    match_mode: str = 'swin-7',
+    max_num: int = 9999999
 ) -> OptimizedResult:
     """
     Perform inference using the mast3r algorithm.
@@ -204,8 +205,17 @@ def inferece_mast3r(
         imgs = [imgs[0], copy.deepcopy(imgs[0])]
         imgs[1]["idx"] = 1
 
+    if len(imgs) > max_num:
+        N = len(imgs)
+        SKIP = N // max_num
+        imgs = imgs[::SKIP]
+        # Update idx and instance
+        for i, img in enumerate(imgs):
+            img["idx"] = i
+            img["instance"] = f"{i}"
+
     pairs: list[tuple[ImageDict, ImageDict]] = make_pairs(
-        imgs, scene_graph=mode, prefilter=None, symmetrize=True
+        imgs, scene_graph=match_mode, prefilter=None, symmetrize=True
     )
     output: Dust3rResult = inference(pairs, model, device, batch_size=batch_size)
 
